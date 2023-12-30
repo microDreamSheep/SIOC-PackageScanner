@@ -5,6 +5,7 @@ import live.midreamsheep.frame.sioc.scan.clazz.ClassMetaDefinition;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ProcessorManager {
@@ -35,16 +36,24 @@ public class ProcessorManager {
         return contextHandlerMap.remove(annotationClass);
     }
 
-    public static void addUserProcessor(ClassMetaDefinition handle) {
-        //实例化handle
-        try {
-            Object o = handle.getOwnClass().getDeclaredConstructor().newInstance();
-            if(o instanceof HandlerProcessor){
-                ((HandlerProcessor)o).init(handle);
+    public static void addUserProcessors(Map<Class<?>,ClassMetaDefinition> handleList)  {
+        List<HandlerProcessor> handlerProcessors = handleList.values().stream().map(classMetaDefinition -> {
+            try {
+                return (HandlerProcessor) classMetaDefinition.getOwnClass().getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException ignored) {
+
             }
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            //TODO
-            throw new RuntimeException(e);
+            return null;
+        }).sorted((o1, o2) -> {
+            assert o1 != null;
+            int order1 = o1.getOrder();
+            int order2 = o2.getOrder();
+            return Integer.compare(order1, order2);
+        }).collect(java.util.stream.Collectors.toList());
+        //对handlerProcessors通过order进行排序
+        for (HandlerProcessor handlerProcessor : handlerProcessors) {
+            handlerProcessor.init(handleList.get(handlerProcessor.getClass()));
         }
 
     }

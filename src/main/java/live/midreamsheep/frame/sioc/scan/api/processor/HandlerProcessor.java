@@ -9,4 +9,6 @@ public interface HandlerProcessor {
     void process(ClassMetaDefinition classMetaDefinition, List<ContextHandler> contextHandlerList);
 
     void init(ClassMetaDefinition classMetaDefinition);
+
+    int getOrder();
 }

@@ -24,4 +24,9 @@ public abstract class DecorateProcessor extends AbstractHandlerProcessor {
             ProcessorManager.addProcessor(aClass,this);
         }
     }
+
+    @Override
+    public int getOrder() {
+        return 5;
+    }
 }

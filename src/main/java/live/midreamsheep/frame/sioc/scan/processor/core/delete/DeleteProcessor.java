@@ -17,4 +17,9 @@ public class DeleteProcessor extends AbstractHandlerProcessor {
             ProcessorManager.removeProcessor(aClass);
         }
     }
+
+    @Override
+    public int getOrder() {
+        return 5;
+    }
 }

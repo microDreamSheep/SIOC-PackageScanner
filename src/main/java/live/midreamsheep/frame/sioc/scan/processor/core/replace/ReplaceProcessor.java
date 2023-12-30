@@ -17,4 +17,9 @@ public abstract class ReplaceProcessor extends AbstractHandlerProcessor {
             ProcessorManager.addProcessor(aClass,this);
         }
     }
+
+    @Override
+    public int getOrder() {
+        return 3;
+    }
 }

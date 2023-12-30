@@ -13,7 +13,6 @@ import live.midreamsheep.frame.sioc.scan.inter.ClassParserToDefinition;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 具体的处理器
@@ -29,13 +28,23 @@ public class CoreClassParserToDefinition implements ClassParserToDefinition {
     @Override
     public HandlerSet parse(Set<Class<?>> classes) {
         Set<ClassMetaDefinition> classMetaDefinitions = parseClass(classes);
-        //过滤出带有HandlerFlag的类
-        List<ClassMetaDefinition> processors = classMetaDefinitions.stream().filter(classMetaDefinition -> classMetaDefinition.getAnnotationInfo().getAnnotation(ProcessorFlag.class) != null).collect(Collectors.toList());
-        insertHandler(processors);
-        //过滤出带有SIocFlag的类
-        List<ClassMetaDefinition> targets = classMetaDefinitions.stream().filter(classMetaDefinition -> classMetaDefinition.getAnnotationInfo().getAnnotation(SIocFlag.class) != null).collect(Collectors.toList());
-        //进行处理
-        return generateHandlerSet(targets);
+
+        Map<Class<?>,ClassMetaDefinition> processorsMap = new HashMap<>();
+        Map<Class<?>,ClassMetaDefinition> targetsMap = new HashMap<>();
+
+        for (ClassMetaDefinition classMetaDefinition : classMetaDefinitions) {
+            if (classMetaDefinition.getAnnotationInfo().getAnnotation(ProcessorFlag.class) != null) {
+                processorsMap.put(classMetaDefinition.getOwnClass(),classMetaDefinition);
+            }
+            if (classMetaDefinition.getAnnotationInfo().getAnnotation(SIocFlag.class) != null) {
+                if (classMetaDefinition.getOwnClass().isAnnotation()){
+                    continue;
+                }
+                targetsMap.put(classMetaDefinition.getOwnClass(),classMetaDefinition);
+            }
+        }
+        insertHandler(processorsMap);
+        return generateHandlerSet(targetsMap.values());
     }
 
     /**
@@ -43,7 +52,7 @@ public class CoreClassParserToDefinition implements ClassParserToDefinition {
      * @param targets 待处理的类
      * @return HandlerSet,用于存储上下文处理器
      * */
-    private HandlerSet generateHandlerSet(List<ClassMetaDefinition> targets){
+    private HandlerSet generateHandlerSet(Collection<ClassMetaDefinition> targets){
         List<ContextHandler> contextHandlers = new LinkedList<>();
         for (ClassMetaDefinition target : targets) {
             //处理类
@@ -63,10 +72,8 @@ public class CoreClassParserToDefinition implements ClassParserToDefinition {
     /**
      * 用于将自定义注解处理器放入上下文中
      * */
-    private void insertHandler(List<ClassMetaDefinition> handles){
-        for (ClassMetaDefinition handle : handles) {
-            ProcessorManager.addUserProcessor(handle);
-        }
+    private void insertHandler(Map<Class<?>, ClassMetaDefinition> handles){
+        ProcessorManager.addUserProcessors(handles);
     }
 
     /**

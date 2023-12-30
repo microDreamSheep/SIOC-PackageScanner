@@ -4,7 +4,9 @@ import live.midreamsheep.frame.sioc.api.builder.bean.BeanHandlerFactory;
 import live.midreamsheep.frame.sioc.api.handle.HandlerSet;
 import live.midreamsheep.frame.sioc.scan.inter.ClassParserToDefinition;
 import live.midreamsheep.frame.sioc.scan.inter.ClassesScanner;
+import live.midreamsheep.frame.sioc.scan.parse.CoreClassParserToDefinition;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 /**
  * 默认通过包扫描器实现对对象定义的扫描加解析
@@ -16,6 +18,7 @@ import lombok.AllArgsConstructor;
 public class PackageBeanDefinitionsFactory implements BeanHandlerFactory {
 
     private ClassesScanner classesScanner;
+    //默认采用核心解析器
     private ClassParserToDefinition definitionsParser;
 
     /**

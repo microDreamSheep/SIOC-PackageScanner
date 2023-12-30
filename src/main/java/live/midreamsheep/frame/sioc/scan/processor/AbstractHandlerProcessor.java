@@ -16,4 +16,9 @@ public abstract class AbstractHandlerProcessor implements HandlerProcessor {
     }
 
     protected abstract void init(Class<?>[] classes);
+
+    @Override
+    public int getOrder() {
+        return 0;
+    }
 }
