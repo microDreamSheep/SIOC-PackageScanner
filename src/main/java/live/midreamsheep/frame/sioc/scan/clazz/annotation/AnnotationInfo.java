@@ -36,10 +36,11 @@ public class AnnotationInfo {
 
     public void init(Annotation[] annotations){
         for (Annotation annotation : annotations) {
-            getAllAnnotations(annotation.annotationType()).forEach(this::addAnnotation);
-            if (annotation.annotationType().getName().startsWith("java.lang.annotation")){
+            String name = annotation.annotationType().getName();
+            if (name.startsWith("java.lang.annotation")|| name.startsWith("kotlin.annotation")||name.startsWith("kotlin.Metadata")){
                 continue;
             }
+            getAllAnnotations(annotation.annotationType()).forEach(this::addAnnotation);
             addAnnotation(annotation);
         }
     }
@@ -49,10 +50,12 @@ public class AnnotationInfo {
         //获取类上的注解和注解信息
         Annotation[] annotations = clazz.getAnnotations();
         for (Annotation annotation : annotations) {
-            //排除java.lang.annotation包下的注解
-            if (annotation.annotationType().getName().startsWith("java.lang.annotation")){
+            //排除java.lang.annotation包下的注解和Kotlin的元注解kotlin.annotation
+            String name = annotation.annotationType().getName();
+            if (name.startsWith("java.lang.annotation")|| name.startsWith("kotlin.annotation")||name.startsWith("kotlin.Metadata")){
                 continue;
             }
+            getAllAnnotations(annotation.annotationType()).forEach(this::addAnnotation);
             annotationList.add(annotation);
             annotationList.addAll(getAllAnnotations(annotation.annotationType()));
         }
